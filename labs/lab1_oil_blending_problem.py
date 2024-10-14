@@ -42,11 +42,9 @@ for j in J:
     x[j] = {i:model2.add_var(name = j+i, lb=0) for i in I}
 
 # Define the objective function
-model2.objective = mip.maximize(mip.xsum(y[j]*r[j] for j in J) - 
-    c['1']*(mip.xsum(x[j]['1'] for j in J)) -
-    c['2']*(mip.xsum(x[j]['2'] for j in J)) -
-    c['3']*(mip.xsum(x[j]['3'] for j in J)) -
-    c['4']*(mip.xsum(x[j]['4'] for j in J)))
+profit = mip.xsum(y[j]*r[j] for j in J)
+cost = mip.xsum(c[i]*x[j][i] for j in J for i in I)
+model2.objective = mip.maximize(profit - cost)
 
 # CONSTRAINTS
 # Availability constraint
@@ -70,9 +68,9 @@ for i in I:
 # Optimizing command
 model2.optimize()
 
-# Optimal objective function value
-model2.objective.x
-
 # Printing the variables values
 for i in model2.vars:
   print("{}:{}".format(i.name, i.x))
+
+# Print the optimal profit
+print("Profit: ", model2.objective.x)
